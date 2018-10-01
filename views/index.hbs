@@ -2,7 +2,6 @@
     <h2>Ongoing games</h2>
     {{#if user }}
         <form method="post" action="/games" class="form-inline">
-            @csrf
             <input class="form-control" name="first_team" placeholder="First team" required>
             <input class="form-control" name="second_team" placeholder="Second team" required>
             <input type="hidden" name="first_team_score" value="0">
