@@ -1,2 +1,23 @@
-<h1>{{title}}</h1>
-<p>Welcome to {{title}}</p>
+<div class="container">
+    <h2>Ongoing games</h2>
+    {{#if user }}
+        <form method="post" action="/games" class="form-inline">
+            @csrf
+            <input class="form-control" name="first_team" placeholder="First team" required>
+            <input class="form-control" name="second_team" placeholder="Second team" required>
+            <input type="hidden" name="first_team_score" value="0">
+            <input type="hidden" name="second_team_score" value="0">
+            <button type="submit" class="btn btn-primary">Start new game</button>
+        </form>
+    {{/if}}
+    <br>
+    {{#each games }}
+        <a class="card bg-dark" href="/games/{{ this.id }}">
+            <div class="card-body">
+                <div class="card-title">
+                    <h4>{{ this.score }}</h4>
+                </div>
+            </div>
+        </a>
+    {{/each}}
+</div>
