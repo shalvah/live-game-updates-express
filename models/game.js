@@ -5,6 +5,11 @@ let Game = mongoose.model('Game', {
     second_team: String,
     first_team_score: Number,
     second_team_score: Number,
+    updates: [{
+        minute: Number,
+        type: String,
+        description: String,
+    }],
 });
 
 module.exports = Game;
