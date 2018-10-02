@@ -18,6 +18,7 @@ passport.serializeUser((user, cb) => cb(null, user.username));
 passport.deserializeUser((username, cb) => cb(null, { username }));
 
 const app = express();
+require('mongoose').connect('mongodb://localhost/live-game-updates-express');
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
