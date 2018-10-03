@@ -7,7 +7,7 @@ let Game = mongoose.model('Game', {
     second_team_score: Number,
     updates: [{
         minute: Number,
-        type: String,
+        event_type: String,
         description: String,
     }],
 });
