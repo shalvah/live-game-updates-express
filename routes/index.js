@@ -2,6 +2,13 @@ const express = require('express');
 const router = express.Router();
 const passport = require('passport');
 const Game = require('./../models/game');
+const Pusher = require('pusher');
+const pusher = new Pusher({
+    appId: process.env.PUSHER_APP_ID,
+    key: process.env.PUSHER_APP_KEY,
+    secret: process.env.PUSHER_APP_SECRET,
+    cluster: process.env.PUSHER_APP_CLUSTER
+});
 
 // see the login form
 router.get('/login', (req, res, next) => {
@@ -20,7 +27,7 @@ router.get('/',
     (req, res, next) => {
         return Game.find({})
             .then((games) => {
-                return res.render('index', {games});
+                return res.render('index', { games });
             });
     });
 
@@ -29,7 +36,11 @@ router.get('/games/:id',
     (req, res, next) => {
         return Game.findOne({_id: req.params.id})
             .then((game) => {
-                return res.render('game', {game});
+                return res.render('game', {
+                    game: encodeURI(JSON.stringify(game)),
+                    key: process.env.PUSHER_APP_KEY,
+                    cluster: process.env.PUSHER_APP_CLUSTER,
+                });
             });
     });
 
@@ -49,18 +60,21 @@ router.post('/games/:id',
         // This adds the new update to start of the `updates` array
         // so they are sorted newest-to-oldest
         const updateQuery = { $push: { updates: { $each: [ data ], $position: 0 } } };
-        return Game.findOneAndUpdate({_id: id}, updateQuery)
+        return Game.findOneAndUpdate({_id: req.params.id}, updateQuery)
             .then((game) => {
-                return res.json(game);
+                pusher.trigger(`game-updates-${game._id}`, 'event', data, req.headers['x-socket-id']);
+                return res.json(data);
             });
     });
 
 // update a game's score
 router.post('/games/:id/score',
     (req, res, next) => {
-        return Game.findOneAndUpdate({_id: id}, req.body)
+    const data = req.body;
+        return Game.findOneAndUpdate({_id: req.params.id}, data)
             .then((game) => {
-                return res.json(game);
+                pusher.trigger(`game-updates-${game._id}`, 'score', data, req.headers['x-socket-id']);
+                return res.json(data);
             });
     });
 
