@@ -9,13 +9,13 @@
         <div class="card-body">
             <form v-on:submit="updateGame">
                 <h6>Post a new game update</h6>
-                <input class="form-control" type="number" id="minute" v-model="pendingUpdate.minute"
+                <input class="form-control" type="number" v-model="pendingUpdate.minute"
                        placeholder="In what minute did this happen?">
 
-                <input class="form-control" id="type" placeholder="Event type (goal, foul, injury, booking...)"
-                       v-model="pendingUpdate.type">
+                <input class="form-control" placeholder="Event type (goal, foul, injury, booking...)"
+                       v-model="pendingUpdate.event_type">
 
-                <input class="form-control" id="description" placeholder="Add a description or comment..."
+                <input class="form-control" placeholder="Add a description or comment..."
                        v-model="pendingUpdate.description">
 
                 <button type="submit" class="btn btn-primary">Post update</button>
@@ -27,10 +27,75 @@
     <h4>Game updates</h4>
     <div class="card-body" v-for="update in game.updates">
         <div class="card-title">
-            <h5>\{{ update.type }} (\{{ update.minute }}')</h5>
+            <h5>\{{ update.event_type }} (\{{ update.minute }}')</h5>
         </div>
         <div class="card-text">
             \{{ update.description }}
         </div>
     </div>
 </div>
+
+<script src="https://cdn.jsdelivr.net/npm/vue@2.5.17/dist/vue.js"></script>
+<script>
+    const game = JSON.parse(decodeURI(" {{ game }}"));
+    const app = new Vue({
+        el: '#main',
+
+        data: {
+            game,
+            pendingUpdate: {
+                minute: '',
+                event_type: '',
+                description: ''
+            }
+        },
+
+        methods: {
+            updateGame(event) {
+                event.preventDefault();
+                fetch(`/games/${this.game._id}`, {
+                    body: JSON.stringify(this.pendingUpdate),
+                    credentials: 'same-origin',
+                    headers: {
+                        'content-type': 'application/json',
+                    },
+                    method: 'POST',
+                }).then(response => {
+                    console.log(response);
+                    if (response.ok) {
+                        if (!this.game.updates) this.game.updates = [];
+                        this.game.updates.unshift(response.data);
+                        this.pendingUpdate = {};
+                    }
+                });
+            },
+
+            updateScore() {
+                const data = {
+                    first_team_score: this.game.first_team_score,
+                    second_team_score: this.game.second_team_score,
+                };
+                fetch(`/games/${this.game._id}/score`, {
+                    body: JSON.stringify(data),
+                    credentials: 'same-origin',
+                    headers: {
+                        'content-type': 'application/json',
+                    },
+                    method: 'POST',
+                }).then(response => {
+                    console.log(response);
+                });
+            },
+
+            updateFirstTeamScore(event) {
+                this.game.first_team_score = event.target.innerText;
+                this.updateScore();
+            },
+
+            updateSecondTeamScore(event) {
+                this.game.second_team_score = event.target.innerText;
+                this.updateScore();
+            }
+        }
+    });
+</script>
