@@ -2,7 +2,7 @@
 
 Realtime app for following game scores and events in realtime. This app provides a backend for an admin to log in and publish updates on ongoing games, and a frontend that allows users to follow a game's progress in realtime.
 
-View tutorial [here](https://pusher.com/tutorials/live-game-express)
+View the tutorial [here](https://pusher.com/tutorials/live-game-express)
 
 ## Prerequisites
 - Node.js 8.10.0 or greater
